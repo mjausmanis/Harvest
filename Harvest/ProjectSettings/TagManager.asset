@@ -5,14 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - CinemachineTarget
+  - Enemy
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Hittable
   - Water
   - UI
-  - 
+  - Enemy
   - 
   - Character
   - Ground
