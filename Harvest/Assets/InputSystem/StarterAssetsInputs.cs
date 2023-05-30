@@ -14,6 +14,7 @@ namespace StarterAssets
 		public bool sprint;
 		public bool shoot;
 		public bool reload;
+		public bool throwgrenade;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -51,6 +52,9 @@ namespace StarterAssets
 		}
 		public void OnReload(InputValue value) {
 			reload = value.isPressed;
+		}
+		public void OnThrowGrenade(InputValue value) {
+			throwgrenade = value.isPressed;
 		}
 #endif
 

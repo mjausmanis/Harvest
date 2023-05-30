@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using StarterAssets;
-
+using TMPro;
 
 public class Weapon : MonoBehaviour
 {
@@ -29,18 +29,25 @@ public class Weapon : MonoBehaviour
     [SerializeField] LayerMask hittableLayer;
     [SerializeField] float weaponRange;
 
+    private GameObject canvas;
+    private TextMeshProUGUI ammoCount;
+
+
     Camera mainCam;
 
     void Awake()
     {
-        //fetches the main camera and stores it in a variable
+        canvas = GameObject.Find("PlayerHUD");
         mainCam = Camera.main; 
         animator = GetComponent<Animator>();
+
+        ammoCount = canvas.GetComponentInChildren<TextMeshProUGUI>();
     }
 
     void Start() {
         _input = transform.root.GetComponent<StarterAssetsInputs>();
         bullets = clipSize;
+        ChangeAmmoText(bullets);
     }
 
     void Update()
@@ -61,15 +68,9 @@ public class Weapon : MonoBehaviour
         }
         if (_input.reload && !reloading && bullets < clipSize) {
             Debug.Log("Reloading");
-            Reload();
+            StartCoroutine(Reload());
         } else if (bullets == clipSize) {
             _input.reload = false;
-        }
-        if (reloading && thresholdTime < Time.time) {
-            Debug.Log("Finished reloading");
-            transform.Translate(mainCam.transform.up * 5 * Time.deltaTime);
-            reloading = false;
-            animator.SetBool("Empty", false);
         }
     }
 
@@ -78,6 +79,7 @@ public class Weapon : MonoBehaviour
         MuzzleFlash.Play();
         animator.SetBool("Shoot", true);
         bullets--;
+        ChangeAmmoText(bullets);
         
         if (bullets == 0) {
             animator.SetBool("Empty", true);
@@ -85,8 +87,15 @@ public class Weapon : MonoBehaviour
         
         if (Physics.Raycast(mainCam.transform.position, mainCam.transform.forward, out RaycastHit hit, weaponRange, hittableLayer))
         {
-            if(hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
-                hit.collider.gameObject.SendMessageUpwards("GetHit", weaponDamage);
+            if(hit.collider.gameObject.tag == "Enemy") {
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("EnemyHead")) {
+                    Debug.Log("Head hit");
+                    hit.collider.gameObject.SendMessageUpwards("TakeDamage", weaponDamage * 2);
+                } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("EnemyLegs")) {
+                    hit.collider.gameObject.SendMessageUpwards("TakeDamage", weaponDamage * 0.7);
+                } else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy")) {
+                    hit.collider.gameObject.SendMessageUpwards("TakeDamage", weaponDamage);
+                }
                 Debug.Log("Enemy hit");
             } else {
                 //spawning bulletHoles at point of hit + (unit vector normal to the surface)*offset
@@ -108,17 +117,26 @@ public class Weapon : MonoBehaviour
         animator.SetBool("Shoot", false);
         // Reset the shooting animation parameter
         
-
         // Trigger the shoot complete parameter to transition back to idle
         animator.SetTrigger("ShootComplete");
     }
 
-    private void Reload() {
+    private IEnumerator Reload() {
             reloading = true;
             canShoot = false;
             thresholdTime = Time.time + reloadTime;
-            transform.Translate(-mainCam.transform.up * 5 * Time.deltaTime);
-            bullets = clipSize;
             _input.reload = false;
+
+            yield return new WaitForSeconds(reloadTime);
+
+            bullets = clipSize;
+            ChangeAmmoText(bullets);
+            reloading = false;
+            canShoot = true;
+            animator.SetBool("Empty", false);
+    }
+
+    void ChangeAmmoText(int bulletCount) {
+        ammoCount.text = bulletCount+"/"+clipSize;
     }
 }
