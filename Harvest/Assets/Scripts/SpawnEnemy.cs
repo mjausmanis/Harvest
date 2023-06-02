@@ -14,6 +14,7 @@ public class SpawnEnemy : MonoBehaviour
     private bool enemiesSpawned = false;
     private ParticleSystem implosion;
     private bool gatesOpened = false;
+    private bool spawnTriggered = false;
 
     void Update() {
         if (enemiesSpawned && CheckIfAllDead() && !gatesOpened) {
@@ -23,8 +24,8 @@ public class SpawnEnemy : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other) {
-        if (!enemiesSpawned) {
-            enemiesSpawned = true;
+        if (!spawnTriggered) {
+            spawnTriggered = true;
             StartCoroutine(SpawnEnemies());
             if(prevGate != null) {
                 prevGate.GetComponent<Gates>().CloseGate();
@@ -39,6 +40,7 @@ public class SpawnEnemy : MonoBehaviour
             
             yield return new WaitForSeconds(0.3f);
 
+            enemiesSpawned = true;
             GameObject newEnemy = Instantiate(Enemy, spawnPoint.position, spawnPoint.rotation);
             enemyList.Add(newEnemy);
             RandomizeGear(newEnemy);

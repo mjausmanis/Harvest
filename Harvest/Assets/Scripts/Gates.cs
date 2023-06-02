@@ -37,8 +37,8 @@ public class Gates : MonoBehaviour
 
         float timePassed = 0f;
 
-        while (timePassed < 1f) {
-            float t = timePassed / 1f;
+        while (timePassed < 3f) {
+            float t = timePassed / 3f;
             
             Quaternion newRotationLeft = Quaternion.Lerp(startRotationLeft, targetRotationLeft, t);
             Quaternion newRotationRight = Quaternion.Lerp(startRotationRight, targetRotationRight, t);
