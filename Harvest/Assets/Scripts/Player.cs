@@ -10,7 +10,6 @@ public class Player : MonoBehaviour
     
     public int currentHealth = 0;
 
-    private bool dead = false;
 
     public HealthBar healthBar;
 
@@ -30,14 +29,13 @@ public class Player : MonoBehaviour
     private void TakeDamage(int damage) {
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
-        Debug.Log("Player Health: " + currentHealth);
+        
         CheckHealth();
     }
 
     private void CheckHealth() {
         if (currentHealth <= 0) {
             StartCoroutine(Die());
-            dead = true;
         }
     }
 
@@ -51,7 +49,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator Die() {
         Transform gameOverlay = transform.Find("PlayerHUD/GameOver");
-        Debug.Log(gameOverlay);
+
         gameOverlay.gameObject.SetActive(true);
         Time.timeScale = 0.3f;
 

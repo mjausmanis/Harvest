@@ -64,6 +64,8 @@ namespace StarterAssets
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
 
+		private Animator animator;
+
 	
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 		private PlayerInput _playerInput;
@@ -93,6 +95,8 @@ namespace StarterAssets
 			{
 				_mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 			}
+			animator = GameObject.Find("PlayerCameraRoot/ArmModel").GetComponent<Animator>();
+			Debug.Log(animator);
 		}
 
 		private void Start()
@@ -182,6 +186,8 @@ namespace StarterAssets
 			{
 				_speed = targetSpeed;
 			}
+			Debug.Log(_speed);
+			animator.SetFloat("Speed", _speed);
 
 			// normalise input direction
 			Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;

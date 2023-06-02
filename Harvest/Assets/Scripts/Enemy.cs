@@ -67,7 +67,6 @@ public class Enemy : MonoBehaviour
 
     public void CheckHealth() {
         if(currentHealth <= 0 && !isDead) {
-            Debug.Log("Enemy dead");
             Die();
         } else if (currentHealth > 0) {
             animator.SetBool("IsAlive", true);

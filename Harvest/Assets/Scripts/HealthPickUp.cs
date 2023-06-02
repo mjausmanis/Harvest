@@ -23,9 +23,7 @@ public class HealthPickUp : MonoBehaviour
     }
 
     void Update() {
-        Debug.Log(timer + " + " + Time.time);
         if(timer < Time.time) {
-            Debug.Log("Teleportinigs");
             Teleport();
             timer = Time.time + teleportTimer;
         }

@@ -23,7 +23,8 @@ public class Weapon : MonoBehaviour
     [SerializeField] float reloadTime;
     private bool reloading;
 
-    private Animator animator;
+    private Animator weaponAnimator;
+    private Animator armAnimator;
 
     [Header("Raycast")]
     [SerializeField] LayerMask hittableLayer;
@@ -38,8 +39,10 @@ public class Weapon : MonoBehaviour
     void Awake()
     {
         mainCam = Camera.main; 
-        animator = GetComponent<Animator>();
-
+        weaponAnimator = GetComponent<Animator>();
+        Debug.Log(weaponAnimator);
+        armAnimator = transform.parent.parent.parent.parent.parent.parent.GetComponent<Animator>();
+        Debug.Log(armAnimator);
         ammoCount = GameObject.Find("AmmoCount").GetComponentInChildren<TextMeshProUGUI>();
     }
 
@@ -66,7 +69,6 @@ public class Weapon : MonoBehaviour
             _input.shoot = false; // Disregard the click if the gun is on cooldown
         }
         if (_input.reload && !reloading && bullets < clipSize) {
-            Debug.Log("Reloading");
             StartCoroutine(Reload());
         } else if (bullets == clipSize) {
             _input.reload = false;
@@ -76,12 +78,13 @@ public class Weapon : MonoBehaviour
     private void Shoot()
     {
         MuzzleFlash.Play();
-        animator.Play("Shoot");
+        weaponAnimator.Play("Shoot", 0, 0);
+        armAnimator.Play("Shoot", 0, 0);
         bullets--;
         UpdateAmmoText(bullets);
         
         if (bullets == 0) {
-            animator.SetBool("Empty", true);
+            weaponAnimator.SetBool("Empty", true);
         }
         
         if (Physics.Raycast(mainCam.transform.position, mainCam.transform.forward, out RaycastHit hit, weaponRange, hittableLayer))
@@ -109,18 +112,10 @@ public class Weapon : MonoBehaviour
         }
         
     }
-    
-    public void ShootCompleteAnimationEvent() {
-        // This method is called from the shoot animation when it completes
 
-        animator.SetBool("Shoot", false);
-        // Reset the shooting animation parameter
-        
-        // Trigger the shoot complete parameter to transition back to idle
-        animator.SetTrigger("ShootComplete");
-    }
 
     private IEnumerator Reload() {
+            armAnimator.Play("Reload");
             reloading = true;
             canShoot = false;
             thresholdTime = Time.time + reloadTime;
@@ -132,7 +127,7 @@ public class Weapon : MonoBehaviour
             UpdateAmmoText(bullets);
             reloading = false;
             canShoot = true;
-            animator.SetBool("Empty", false);
+            weaponAnimator.SetBool("Empty", false);
     }
 
     void UpdateAmmoText(int bulletCount) {

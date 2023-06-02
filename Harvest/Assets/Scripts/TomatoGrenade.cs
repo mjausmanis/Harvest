@@ -23,7 +23,6 @@ public class TomatoGrenade : MonoBehaviour
     }
 
     private void Explode() {
-        Debug.Log("Boom");
         explosionPrefab.Play();
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
@@ -57,6 +56,6 @@ public class TomatoGrenade : MonoBehaviour
         foreach (Renderer renderer in meshesRenderers) {
             renderer.enabled = false;
         }
-        Destroy(gameObject, explosionPrefab.duration);
+        Destroy(gameObject);
     }
 }
