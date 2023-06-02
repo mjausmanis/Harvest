@@ -16,8 +16,10 @@ public class TomatoGrenade : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision other) {
-        Explode();
-        rigidBody.isKinematic = true;
+        if (!other.transform.CompareTag("Fence")) {
+            Explode();
+            rigidBody.isKinematic = true;
+        }
     }
 
     private void Explode() {
@@ -39,8 +41,10 @@ public class TomatoGrenade : MonoBehaviour
             }
 
             if (hitCollider.CompareTag("Enemy")) {
-                Debug.Log(hitCollider.gameObject);
                 hitCollider.SendMessageUpwards("TakeDamage", 3);
+            }
+            if (hitCollider.CompareTag("Player")) {
+                hitCollider.SendMessageUpwards("TakeDamage", 20);
             }
 
         }

@@ -37,17 +37,16 @@ public class Weapon : MonoBehaviour
 
     void Awake()
     {
-        canvas = GameObject.Find("PlayerHUD");
         mainCam = Camera.main; 
         animator = GetComponent<Animator>();
 
-        ammoCount = canvas.GetComponentInChildren<TextMeshProUGUI>();
+        ammoCount = GameObject.Find("AmmoCount").GetComponentInChildren<TextMeshProUGUI>();
     }
 
     void Start() {
         _input = transform.root.GetComponent<StarterAssetsInputs>();
         bullets = clipSize;
-        ChangeAmmoText(bullets);
+        UpdateAmmoText(bullets);
     }
 
     void Update()
@@ -77,9 +76,9 @@ public class Weapon : MonoBehaviour
     private void Shoot()
     {
         MuzzleFlash.Play();
-        animator.SetBool("Shoot", true);
+        animator.Play("Shoot");
         bullets--;
-        ChangeAmmoText(bullets);
+        UpdateAmmoText(bullets);
         
         if (bullets == 0) {
             animator.SetBool("Empty", true);
@@ -130,13 +129,13 @@ public class Weapon : MonoBehaviour
             yield return new WaitForSeconds(reloadTime);
 
             bullets = clipSize;
-            ChangeAmmoText(bullets);
+            UpdateAmmoText(bullets);
             reloading = false;
             canShoot = true;
             animator.SetBool("Empty", false);
     }
 
-    void ChangeAmmoText(int bulletCount) {
+    void UpdateAmmoText(int bulletCount) {
         ammoCount.text = bulletCount+"/"+clipSize;
     }
 }

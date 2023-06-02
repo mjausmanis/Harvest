@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class Player : MonoBehaviour
 
     private void CheckHealth() {
         if (currentHealth <= 0) {
-            Debug.Log("Player dead");
+            StartCoroutine(Die());
             dead = true;
         }
     }
@@ -46,5 +47,17 @@ public class Player : MonoBehaviour
             currentHealth = MaxPlayerHealth;
         }
         healthBar.SetHealth(currentHealth);
+    }
+
+    private IEnumerator Die() {
+        Transform gameOverlay = transform.Find("PlayerHUD/GameOver");
+        Debug.Log(gameOverlay);
+        gameOverlay.gameObject.SetActive(true);
+        Time.timeScale = 0.3f;
+
+        yield return new WaitForSeconds(2);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Time.timeScale = 1f;
     }
 }

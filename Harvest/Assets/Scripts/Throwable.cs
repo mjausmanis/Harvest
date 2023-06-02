@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using StarterAssets;
+using TMPro;
 
 public class Throwable : MonoBehaviour
 {
@@ -23,19 +24,30 @@ public class Throwable : MonoBehaviour
 
     bool readyToThrow;
 
+    private GameObject canvas;
+    private TextMeshProUGUI nadeCountUI;
+
+    private int nadeCount;
+
     private void Start() {
+        nadeCount = totalThrows;
+        canvas = GameObject.Find("PlayerHUD");
         _input = transform.root.GetComponent<StarterAssetsInputs>();
         readyToThrow = true;
+        nadeCountUI = GameObject.Find("NadeCount").GetComponentInChildren<TextMeshProUGUI>();
+        UpdateNadeCount();
     }
 
     private void Update() {
-        if (_input.throwgrenade && readyToThrow && totalThrows > 0) {
+        if (_input.throwgrenade && readyToThrow && nadeCount > 0) {
             Throw();
             _input.throwgrenade = false;
         }
     }
 
     private void Throw() {
+        nadeCount--;
+        UpdateNadeCount();
         GameObject projectile = Instantiate(objectToThrow, attackPoint.position, cam.rotation);
 
         Rigidbody projectileRB = projectile.GetComponent<Rigidbody>();
@@ -44,5 +56,9 @@ public class Throwable : MonoBehaviour
     
         projectileRB.AddForce(forceToAdd, ForceMode.Impulse);
 
+    }
+
+    void UpdateNadeCount() {
+        nadeCountUI.text = nadeCount+"/"+totalThrows;
     }
 }

@@ -7,22 +7,28 @@ using UnityEngine.AI;
 [RequireComponent (typeof (UnityEngine.AI.NavMeshAgent))]
 public class Enemy : MonoBehaviour
 {
+    [Header("Enemy")]
     [SerializeField] int maxHealth;
     [SerializeField] float moveSpeed;
     [SerializeField] float minDistance;
     [SerializeField] HealthBar healthBar;
     [SerializeField] float attackRate;
+
+    [Header("Grenade")]
+    [SerializeField] GameObject grenadePrefab;
+    [SerializeField] int nadeCount;
+    [SerializeField] float throwForce = 10f;
     
     NavMeshAgent agent;
-    public Animator animator;
-    public int currentHealth = 0;
+    Animator animator;
+    int currentHealth = 0;
 
     float damageBuffer;
     bool attacking;
     bool isDead;
     GameObject player;
+    bool readyToThrow = true;
 
-    // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
@@ -34,7 +40,6 @@ public class Enemy : MonoBehaviour
         isDead = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!isDead) {
@@ -42,14 +47,17 @@ public class Enemy : MonoBehaviour
         }
     }
 
-
     void ChaseTarget() {
 
         float distance = Vector3.Distance(transform.position, player.transform.position);
-
+        Debug.Log(distance);
         if (distance > minDistance) {
             agent.destination = player.transform.position;
             animator.SetBool("Attack", false);
+        }
+
+        if (nadeCount > 0 && readyToThrow && distance > 20 && distance < 25) {
+            StartCoroutine(ThrowNade());
         }
 
         if (distance <= minDistance && !attacking) {
@@ -70,17 +78,35 @@ public class Enemy : MonoBehaviour
         attacking = true;
         animator.SetBool("Attack", true);
 
-        yield return new WaitForSeconds(attackRate);
+        yield return new WaitForSeconds(0.5f);
 
         float distance = Vector3.Distance(transform.position, player.transform.position);
         if (distance <= minDistance) {
             player.gameObject.SendMessageUpwards("TakeDamage", 5);
         }
+        
+        yield return new WaitForSeconds(0.5f);
+
         attacking = false;
     }
 
-    void ThrowApple() {
+    IEnumerator ThrowNade() {
+        readyToThrow = false;
+        nadeCount --;
+        animator.Play("Throw Nade");
+        yield return new WaitForSeconds(0.5f);
 
+        GameObject grenade = Instantiate(grenadePrefab, transform.position + new Vector3(0f, 3f, 0f), Quaternion.identity);
+        Vector3 direction = (player.transform.position - transform.position).normalized;
+        float curveHeight = 2f;
+        Vector3 throwVector = Quaternion.Euler(curveHeight, 0f, 0f) * direction;
+        Rigidbody grenadeRigidbody = grenade.GetComponent<Rigidbody>();
+        grenadeRigidbody.velocity = throwVector * throwForce;
+
+        yield return new WaitForSeconds(3);
+
+        animator.ResetTrigger("ThrowNade");
+        readyToThrow = true;
     }
 
     public void TakeDamage(int damage) {
@@ -91,9 +117,13 @@ public class Enemy : MonoBehaviour
     }
 
     public void Die() {
-        agent.isStopped = true;
-        animator.SetBool("Attack", false);
         animator.SetBool("IsAlive", false);
+        animator.SetBool("Attack", false);
+        agent.isStopped = true;
         isDead = true;
+    }
+
+    public bool checkIfDead() {
+        return isDead;
     }
 }
