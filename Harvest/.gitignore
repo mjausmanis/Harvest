@@ -5,6 +5,7 @@
 /[Bb]uilds/
 /[Oo]bj/
 /Logs/
+/[Uu]ser[Ss]ettings/
 
 # Visual Studio 2015 cache directory
 /.vs/
